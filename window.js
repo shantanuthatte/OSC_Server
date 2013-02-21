@@ -22,27 +22,61 @@ function ab2str(buf) {
   return String.fromCharCode.apply(null, new Uint16Array(buf));
 }
 
-var handleDataEvent = function(d) {
-  var data = chrome.socket.read(d.socketId);
+var sockets = {
+    "recv": {
+      protocol: "udp",
+      port: 8899,
+      socket: null,
+      type: 'bind'
+    }
+}
+
+var readTimeout;
+var readSocket;
+
+function readBack () {
+  chrome.socket.recvFrom()
   console.log(data);
 };
+
+var ab2str=function(buf) {
+  return String.fromCharCode.apply(null, new Uint8Array(buf));
+};
+
+function connect(sockRef){
+  chrome.socket.create('udp', null, function(createInfo){
+    readSocket = createInfo.socketId;
+
+    chrome.socket.bind(readSocket, '0.0.0.0', 8899, function(result){
+        console.log('chrome.socket.bind: result = ' + result.toString());
+    });
+
+    function read()
+    {
+      console.log("Reading from port");
+        chrome.socket.recvFrom(readSocket, 1024, function(recvFromInfo){
+            console.log('Server: recvFromInfo: ', recvFromInfo, 'Message: ', 
+                ab2str(recvFromInfo.data));
+            if(recvFromInfo.resultCode >= 0)
+            {
+                console.log(readSocket, 'Received message from client ' + recvFromInfo.address + ':' + recvFromInfo.port.toString() + ': ' + ab2str(recvFromInfo.data), recvFromInfo.address, recvFromInfo.port);
+                read();
+            }
+            else
+                console.error('Server read error!');
+        });
+    }
+
+    read();
+  });
+}
 
 document.getElementById('test').addEventListener('click', function(e) {
 
 // Create the Socket
-chrome.socket.create('udp', { onEvent: handleDataEvent }, function(socketInfo) {
-   // The socket is created, now we want to connect to the service
-   var socketId = socketInfo.socketId;
-   chrome.socket.connect(socketId, function(result) {
-     // We are now connected to the socket so send it some data
-     chrome.socket.write(socketId, arrayBuffer,
-       function(sendInfo) {
-         console.log("wrote " + sendInfo.bytesWritten);
-       }
-     );
-   });
- }
-);
+
+
+connect(sockets['recv']);
 
 console.log("Avail Height: "+screen.availHeight);
 console.log("Avail Width: "+screen.availWidth);
