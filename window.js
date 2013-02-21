@@ -34,52 +34,14 @@ var sockets = {
 var readTimeout;
 var readSocket;
 
-function readBack () {
-  chrome.socket.recvFrom()
-  console.log(data);
-};
-
-var ab2str=function(buf) {
-  return String.fromCharCode.apply(null, new Uint8Array(buf));
-};
-
-function connect(sockRef){
-  chrome.socket.create('udp', null, function(createInfo){
-    readSocket = createInfo.socketId;
-
-    chrome.socket.bind(readSocket, '0.0.0.0', 8899, function(result){
-        console.log('chrome.socket.bind: result = ' + result.toString());
-    });
-
-    function read()
-    {
-      console.log("Reading from port");
-        chrome.socket.recvFrom(readSocket, 1024, function(recvFromInfo){
-            console.log('Server: recvFromInfo: ', recvFromInfo, 'Message: ', 
-                ab2str(recvFromInfo.data));
-            if(recvFromInfo.resultCode >= 0)
-            {
-                console.log(readSocket, 'Received message from client ' + recvFromInfo.address + ':' + recvFromInfo.port.toString() + ': ' + ab2str(recvFromInfo.data), recvFromInfo.address, recvFromInfo.port);
-                
-                  console.log(new Uint8Array(recvFromInfo.data));
-                
-                read();
-            }
-            else
-                console.error('Server read error!');
-        });
-    }
-
-    read();
-  });
+var readBack = function (data) {
+  console.log(new Uint8Array(data));
 }
 
 document.getElementById('test').addEventListener('click', function(e) {
 
 // Create the Socket
-
-
-connect(sockets['recv']);
+connect(sockets['recv'], readBack);
 
 console.log("Avail Height: "+screen.availHeight);
 console.log("Avail Width: "+screen.availWidth);
