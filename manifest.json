@@ -11,8 +11,9 @@
       "scripts": ["background.js"]
     }
   },
-  "permissions": ["fullscreen", {"socket": [
-        "udp-bind::8899"
+  "permissions": ["experimental","fullscreen", {"socket": [
+        "udp-bind::8899",
+        "tcp-listen::8080"
       ]}
     ]
 }

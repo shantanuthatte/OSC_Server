@@ -28,20 +28,48 @@ var sockets = {
       port: 8899,
       socket: null,
       type: 'bind'
+    },
+    "http": {
+      protocol: "tcp",
+      port: 8080,
+      socket: null,
+      type: 'listen'
     }
 }
 
 var readTimeout;
 var readSocket;
 
-var readBack = function (data) {
+var readOSC = function (data) {
   console.log(new Uint8Array(data));
+}
+
+var writeHTTP = function(socketId, data) {
+    var contentType = "text/plain";
+    var contentLength = file.size;
+    var header = stringToUint8Array("HTTP/1.0 200 OK\nContent-length: " + file.size + "\nContent-type:" + contentType + "\n\n");
+    var outputBuffer = new ArrayBuffer(header.byteLength + file.size);
+    var view = new Uint8Array(outputBuffer)
+    view.set(header, 0);
+
+    var fileReader = new FileReader();
+    fileReader.onload = function(e) {
+       view.set(new Uint8Array(e.target.result), header.byteLength); 
+       socket.write(socketId, outputBuffer, function(writeInfo) {
+         console.log("WRITE", writeInfo);
+         socket.destroy(socketId); 
+         socket.accept(socketInfo.socketId, onAccept);
+      });
+    };
+
+    fileReader.readAsArrayBuffer("reply.html");
 }
 
 document.getElementById('test').addEventListener('click', function(e) {
 
 // Create the Socket
-connect(sockets['recv'], readBack);
+connect(sockets['recv'], readOSC);
+connect(sockets['http'], writeHTTP);
 
 console.log("Avail Height: "+screen.availHeight);
 console.log("Avail Width: "+screen.availWidth);
