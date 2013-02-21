@@ -60,6 +60,9 @@ function connect(sockRef){
             if(recvFromInfo.resultCode >= 0)
             {
                 console.log(readSocket, 'Received message from client ' + recvFromInfo.address + ':' + recvFromInfo.port.toString() + ': ' + ab2str(recvFromInfo.data), recvFromInfo.address, recvFromInfo.port);
+                
+                  console.log(new Uint8Array(recvFromInfo.data));
+                
                 read();
             }
             else
