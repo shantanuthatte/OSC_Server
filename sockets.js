@@ -21,21 +21,33 @@ function readUDP(readSock, callback)
 
 var acceptTCP = function(acceptInfo, callback, sockRef)
 {
-  console.log(acceptInfo, callback, sockRef);
-  socket.read(acceptInfo.socketId, function(readInfo){
-    var data = ab2str(readInfo.data);
-    console.log(data);
-    
-    console.log("Entering callback..");
-    callback(acceptInfo, data);
-    console.log("Exited callback..");
-    
-    chrome.socket.destroy(acceptInfo.socketId);
-    chrome.accept(sockRef.socket, function(accInfo){
-      acceptTCP(accInfo, callback, sockRef);
+  console.log("Accepted",acceptInfo ,".. Orig Sock: " , sockRef);
+  chrome.socket.getInfo(sockRef.socket, function(result){console.log("Listen socket",result);});
+  if(acceptInfo.resultCode >= 0)
+  {
+    chrome.socket.read(acceptInfo.socketId, function(readInfo){
+      var data = ab2str(readInfo.data);
+      //console.log(data);
+      //console.log(acceptInfo.socketId);
+      console.log("Entering callback..", data);
+      callback(acceptInfo.socketId, data, sockRef, callback);
+      console.log("Exited callback..");
+      
+      //chrome.socket.destroy(acceptInfo.socketId);
+      //chrome.socket.accept(sockRef.socket, function(accInfo){
+        //console.log("Accepting from acceptTCP");
+        //acceptTCP(accInfo, callback, sockRef);
+      //});
     });
-  });
-  callback(acceptInfo);
+  }
+  else{
+    chrome.socket.accept(sockRef.socket, function(accInfo){
+        console.log("Accepting from else in acceptTCP");
+        acceptTCP(accInfo, callback, sockRef);
+    });
+  }
+    
+  //callback(acceptInfo);
 }
 
 function connect(sockRef, callback){
@@ -55,10 +67,16 @@ function connect(sockRef, callback){
 
     if(sockRef.type == "listen" && sockRef.protocol == "tcp")
     {
-      chrome.socket.listen(sockRef.socket, '0.0.0.0', sockRef.port, function(result) {
+      chrome.socket.listen(sockRef.socket, '0.0.0.0', sockRef.port, 999, function(result) {
         console.log('chrome.socket.listen: result = ' + result.toString());
         if(result >= 0)
         {
+          /*setInterval(function(){
+              chrome.socket.accept(sockRef.socket, function(accInfo){
+                acceptTCP(accInfo, callback, sockRef);
+              });
+          }, 3000); */
+          chrome.socket.getInfo(sockRef.socket, function(result){console.log("Listen socket",result);});
           chrome.socket.accept(sockRef.socket, function(acceptInfo){
             acceptTCP(acceptInfo, callback, sockRef);
           });
