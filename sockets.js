@@ -26,18 +26,28 @@ var acceptTCP = function(acceptInfo, callback, sockRef)
   if(acceptInfo.resultCode >= 0)
   {
     chrome.socket.read(acceptInfo.socketId, function(readInfo){
-      var data = ab2str(readInfo.data);
-      //console.log(data);
-      //console.log(acceptInfo.socketId);
-      console.log("Entering callback..", data);
-      callback(acceptInfo.socketId, data, sockRef, callback);
-      console.log("Exited callback..");
-      
-      //chrome.socket.destroy(acceptInfo.socketId);
-      //chrome.socket.accept(sockRef.socket, function(accInfo){
-        //console.log("Accepting from acceptTCP");
-        //acceptTCP(accInfo, callback, sockRef);
-      //});
+      if(readInfo.resultCode >= 0) {
+        var data = ab2str(readInfo.data);
+        //console.log(data);
+        //console.log(acceptInfo.socketId);
+        console.log("Entering callback..", data);
+        callback(acceptInfo.socketId, data, sockRef, callback);
+        console.log("Exited callback..");
+        
+        //chrome.socket.destroy(acceptInfo.socketId);
+        //chrome.socket.accept(sockRef.socket, function(accInfo){
+          //console.log("Accepting from acceptTCP");
+          //acceptTCP(accInfo, callback, sockRef);
+        //});
+      }
+      else {
+        chrome.socket.destroy(acceptInfo.socketId);
+        chrome.socket.accept(sockRef.socket, function(accInfo){
+          console.log("Accepting from else2 in acceptTCP");
+          acceptTCP(accInfo, callback, sockRef);
+        });
+
+      }
     });
   }
   else{
