@@ -98,7 +98,7 @@ document.getElementById('test').addEventListener('click', function(e) {
 
 // Create the Socket
 connect(sockets['recv'], readOSC);
-connect(sockets['http'], writeHTTP);
+//connect(sockets['http'], writeHTTP);
 
 console.log("Avail Height: "+screen.availHeight);
 console.log("Avail Width: "+screen.availWidth);
