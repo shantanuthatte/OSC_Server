@@ -50,9 +50,22 @@ var stringToUint8Array = function(string) {
 };
 
 var readOSC = function (data) {
-  console.log(new Uint8Array(data));
+  chrome.socket.create('udp', {}, function(CreateInfo){
+    //console.log(CreateInfo);
+    var socketId = CreateInfo.socketId;
+    chrome.socket.connect(socketId, '127.0.0.1', 8898, function(result) {
+     // We are now connected to the socket so send it some data
+       if(result>=0){
+        chrome.socket.write(socketId, data, function(sendInfo) {
+           //console.log("wrote " + sendInfo);
+         }
+        );
+      }
+   });
+  });
 }
 
+/*
 var writeHTTP = function(socketId, data, sockRef, callback) {
   chrome.socket.getInfo(sockRef.socket, function(result){console.log("Listen socket",result);});
   if(data.length > 0){
@@ -92,20 +105,26 @@ var writeHTTP = function(socketId, data, sockRef, callback) {
         acceptTCP(accInfo, callback, sockRef);
     });
   }
-}
+}*/
 
 document.getElementById('test').addEventListener('click', function(e) {
 
-// Create the Socket
-connect(sockets['recv'], readOSC);
-//connect(sockets['http'], writeHTTP);
+  // Create the Socket
+  connect(sockets['recv'], readOSC);
+  //connect(sockets['http'], writeHTTP);
 
-console.log("Avail Height: "+screen.availHeight);
-console.log("Avail Width: "+screen.availWidth);
-console.log("Screen Height: "+screen.height);
-console.log("Screen Width: "+screen.width);
-console.log("outer Height: "+window.outerHeight);
-console.log("outer Width: "+window.outerWidth);
+  console.log("Avail Height: "+screen.availHeight);
+  console.log("Avail Width: "+screen.availWidth);
+  console.log("Screen Height: "+screen.height);
+  console.log("Screen Width: "+screen.width);
+  console.log("outer Height: "+window.outerHeight);
+  console.log("outer Width: "+window.outerWidth);
+
+  var hosts = document.getElementById("hosts");
+  chrome.app.window.create('hero_cl/index.html');
+  chrome.app.window.create('hero_cl/score.html?' + hosts.value);
+  
+
 });
 
 // Attempt fullscreen on window creation.
@@ -113,7 +132,16 @@ console.log("outer Width: "+window.outerWidth);
 // http://code.google.com/p/chromium/issues/detail?id=164624
 document.body.webkitRequestFullscreen();
 
-console.log(screen.availHeight);
-console.log(screen.availWidth);
-console.log(screen.height);
-console.log(screen.width);
+var hosts = document.getElementById("hosts");
+var socket = chrome.experimental.socket || chrome.socket;
+socket.getNetworkList(function(interfaces) {
+    for(var i in interfaces) {
+      var interface = interfaces[i];
+      var opt = document.createElement("option");
+      opt.value = interface.address;
+      console.log(interface.address);
+      opt.innerText =  interface.address;
+      hosts.appendChild(opt);
+    }
+  });
+

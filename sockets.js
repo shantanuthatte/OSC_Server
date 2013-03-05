@@ -2,11 +2,20 @@ var ab2str=function(buf) {
   return String.fromCharCode.apply(null, new Uint8Array(buf));
 };
 
+var stringToUint8Array = function(string) {
+    var buffer = new ArrayBuffer(string.length);
+    var view = new Uint8Array(buffer);
+    for(var i = 0; i < string.length; i++) {
+      view[i] = string.charCodeAt(i);
+    }
+    return view;
+};
+
 function readUDP(readSock, callback)
 {
   //console.log("Reading from port");
   chrome.socket.recvFrom(readSock, 1024, function(recvFromInfo){
-      console.log('Server: recvFromInfo: ' + recvFromInfo.address + ":" + recvFromInfo.port.toString(), 'Message: ' + ab2str(recvFromInfo.data));
+      //console.log('Server: recvFromInfo: ' + recvFromInfo.address + ":" + recvFromInfo.port.toString(), 'Message: ' + ab2str(recvFromInfo.data));
       if(recvFromInfo.resultCode >= 0)
       {
           //console.log(readSock, 'Received message from client ' + recvFromInfo.address + ':' + recvFromInfo.port.toString() + ': ' + ab2str(recvFromInfo.data), recvFromInfo.address, recvFromInfo.port);

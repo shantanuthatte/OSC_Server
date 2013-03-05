@@ -1,0 +1,63 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<script type="text/javascript">
+// create global variables to hold DOM objects, and socket
+var up=null, down=null, left=null, right=null, score=null, status=null, start=null, ws=null;
+var stop = null;
+
+// Initialize the page after all the forms load
+window.onload = function () {
+  // assign DOM objects to our vars for ease of use.
+  up = document.getElementById('up_btn');
+  down = document.getElementById('dwn_btn');
+  left = document.getElementById('lft_btn');
+  right = document.getElementById('rit_btn');
+  stop = document.getElementById('stp_btn');
+//  start = document.getElementById('strt_btn');
+  score = document.getElementById('score');
+  status = document.getElementById('status');
+
+  // get a socket
+  if ('WebSocket' in window) {
+    ws = new WebSocket('ws://' + window.location.host + '/hero3');
+  } else if ('MozWebSocket' in window) {
+    ws = new MozWebSocket('ws://' + window.location.host + '/hero3');
+  } else {
+    alert("WebSocket NOT supported by your Browser!");
+    status.value = 'No WebSocket!';
+    return;
+  }
+  // create event handlers for mouse up and down
+  up.onmousedown = function () { if (ws) ws.send("U"); }
+  down.onmousedown = function () { if (ws) ws.send("D"); }
+  left.onmousedown = function () { if (ws) ws.send("L"); }
+  right.onmousedown = function () { if (ws) ws.send("R"); }
+  stop.onmousedown =  function () { if (ws) ws.send("Z"); }
+//  start.onmousedown =  function () { if (ws) ws.send("S"); }
+  //document.onmouseup = function () { if (ws) ws.send("Z"); }
+  // socket event handlers
+  ws.onopen = function() { status.value = 'Socket Opened'; }
+  ws.onmessage = function (evt) { score.value = evt.data; }
+  ws.onclose = function() { status.value = 'Socket Closed'; }
+}
+</script>
+</head>
+<body>
+<form name="the_form">
+    <input type="button" style="font-size:64pt" value="   Up   " id="up_btn" /><br><br>
+    <input type="button" style="font-size:64pt" value="Left" id="lft_btn" />
+    <input type="button" style="font-size:64pt" value=" S " id="stp_btn" />
+    <input type="button" style="font-size:64pt" value="Right" id="rit_btn" /><br><br>
+    <input type="button" style="font-size:64pt" value="Down" id="dwn_btn" /><br><br>
+
+    <br><br><br>
+    Score: 
+    <input type="text" value="" id="score" />
+
+    <br>
+    Status: 
+    <input type="text" value="" id="status" /><br>
+  </form> 
+</body>
+</html>

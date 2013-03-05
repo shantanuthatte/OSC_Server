@@ -1,0 +1,128 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<script type="text/javascript">
+// create global variables to hold DOM objects, and socket
+var up=null, down=null, left=null, right=null, score=null, status=null, start=null, ws=null;
+var stop = null;
+var strToSend = "";
+var prevStS = "";
+// Initialize the page after all the forms load
+window.onload = function () {
+  // assign DOM objects to our vars for ease of use.
+  up = document.getElementById('up_btn');
+  down = document.getElementById('dwn_btn');
+  left = document.getElementById('lft_btn');
+  right = document.getElementById('rit_btn');
+  stop = document.getElementById('stp_btn');
+  start = document.getElementById('strt_btn');
+  score = document.getElementById('score');
+  status = document.getElementById('status');
+
+  // get a socket
+  if ('WebSocket' in window) {
+    ws = new WebSocket('ws://' + window.location.host + ':8080/hero1', "osc");
+  } else if ('MozWebSocket' in window) {
+    ws = new MozWebSocket('ws://' + window.location.host + ':8080/hero1', "osc");
+  } else {
+    alert("WebSocket NOT supported by your Browser!");
+    status.value = 'No WebSocket!';
+    return;
+  }
+  // create event handlers for mouse up and down
+  
+  //document.onmouseup = function () { if (ws) ws.send("Z"); }
+  // socket event handlers
+  ws.onopen = function() { status.value = 'Socket Opened'; }
+  ws.onmessage = function (evt) { score.value = evt.data; }
+  ws.onclose = function() { status.value = 'Socket Closed'; }
+
+  var dot = document.getElementById('dot');
+  var circle = document.getElementById('circle');
+  circle  .addEventListener('touchmove', function(event) {
+    event.preventDefault();
+    var touch = event.touches[0];
+    
+
+    console.log("Touch x:" + (touch.pageX-getOffset(dot).left) + ", y:" + (getOffset(dot).top-touch.pageY));
+    strToSend = (touch.pageX-getOffset(dot).left) + "," + (getOffset(dot).top-touch.pageY);
+    /*if(ws){
+      ws.send();
+
+    }*/
+  }, false);
+
+}
+
+function getOffset( el ) {
+    var _x = 0;
+    var _y = 0;
+    while( el && !isNaN( el.offsetLeft ) && !isNaN( el.offsetTop ) ) {
+        _x += el.offsetLeft - el.scrollLeft;
+        _y += el.offsetTop - el.scrollTop;
+        el = el.offsetParent;
+    }
+    return { top: _y, left: _x };
+}
+
+var sendData = function(){
+  if(ws){
+    if(prevStS != strToSend)
+    {
+      ws.send(strToSend);
+      prevStS = strToSend;
+    }
+  }
+  sendData();
+}
+</script>
+<style>
+body{
+
+  width: 100%
+}
+#circle {
+  position: relative;
+  display: block;
+  width: 600px;
+  height: 600px;
+  background-color: #000;
+  border-color: #F00;
+  border-width: 5px;
+  border-style: solid;
+  -webkit-border-radius: 100%;
+  -moz-border-radius: 100%;
+  border-radius: 100%;
+}
+
+#dot {
+  position: relative;
+  display: block;
+  width: 30px;
+  height: 30px;
+  background-color: #F00;
+  -webkit-border-radius: 100%;
+  -moz-border-radius: 100%;
+  border-radius: 100%;
+  top: 285px;
+}
+
+
+</style>
+</head>
+<body bgcolor="black">
+<center>
+  <div id="circle">
+    <center>
+      <div id="dot">
+      </div>
+    </center>
+  </div>
+  <br>
+<button id="start" style="font-size:96pt">Start</button>
+</center>
+<script type="text/javascript">
+sendData();
+</script>
+</body>
+</html>

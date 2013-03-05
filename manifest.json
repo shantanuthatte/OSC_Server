@@ -11,9 +11,13 @@
       "scripts": ["background.js"]
     }
   },
-  "permissions": ["experimental","fullscreen", {"socket": [
+  "permissions": ["experimental", "fullscreen", {"socket": [
         "udp-bind::8899",
+        "udp-bind::8898",
+        "udp-bind::8897",
+        "udp-send-to::8898",
+        "udp-send-to::8897",
         "tcp-listen::8080"
-      ]}
+      ]}, "http://chart.apis.google.com/"
     ]
 }
