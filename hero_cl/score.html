@@ -3,10 +3,43 @@
 <head>
 <meta charset="utf-8">
 <title>CSC4243 Project 2 Scores</title>
+<style type="text/css">
+#title{
+    font-size: 120px;
+    font-family: "Helvetica";
+}
+
+#scores{
+    font-size: 72px;
+    font-family: "Helvetica";
+}
+
+#max{
+    font-size: 82px;
+    font-family: "Helvetica";
+    color: #300;
+}
+
+#container{
+    width: 100%;
+    height: 1080px;
+    background-image: url('qr.png');
+    background-repeat: no-repeat;
+    background-position: center bottom;
+    background-size: 350px 350px;
+}
+</style>
 </head>
 <body>
+<script type="text/javascript" src="../sockets.js"></script>
 <script type="text/javascript" src="score.js">
-
 </script>
+<div id="container">
+<center>
+    <div id="title">DODGE PONG</div>
+    <div id="max">Max Score:  <a id="score">0</a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Max Kills: <a id="kill">0</a></div><br>
+    <div id="scores"><b>Player 1:</b> Score: <b><i>0</i></b>&nbsp;&nbsp;&nbsp;Kills: <b><i>0</i></b></div>
+</center>
+</div>
 </body>
 </html>

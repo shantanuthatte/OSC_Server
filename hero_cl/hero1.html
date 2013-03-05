@@ -10,7 +10,7 @@ var prevStS = "";
 // Initialize the page after all the forms load
 window.onload = function () {
   // assign DOM objects to our vars for ease of use.
-  up = document.getElementById('up_btn');
+/*  up = document.getElementById('up_btn');
   down = document.getElementById('dwn_btn');
   left = document.getElementById('lft_btn');
   right = document.getElementById('rit_btn');
@@ -18,7 +18,7 @@ window.onload = function () {
   start = document.getElementById('strt_btn');
   score = document.getElementById('score');
   status = document.getElementById('status');
-
+*/
   // get a socket
   if ('WebSocket' in window) {
     ws = new WebSocket('ws://' + window.location.host + ':8080/hero1', "osc");
@@ -34,24 +34,50 @@ window.onload = function () {
   //document.onmouseup = function () { if (ws) ws.send("Z"); }
   // socket event handlers
   ws.onopen = function() { status.value = 'Socket Opened'; }
-  ws.onmessage = function (evt) { score.value = evt.data; }
+  ws.onmessage = function (evt) { 
+    //score.value = evt.data;
+    var data = evt.data.split(',');
+    if(data[0] == "end")
+    {
+      var start = document.getElementById('start');
+      start.value = "start";
+      start.innerHTML = "Start";
+    }else if(data[0] == "score")
+    {
+      var score = document.getElementById("score");
+      var kills = document.getElementById("kills");
+
+      score.innerHTML = "Score: " + data[1].toString();
+      kills.innerHTML = "Kills: " + data[2].toString();
+    }
+  }
   ws.onclose = function() { status.value = 'Socket Closed'; }
 
   var dot = document.getElementById('dot');
   var circle = document.getElementById('circle');
-  circle  .addEventListener('touchmove', function(event) {
+  circle.addEventListener('touchmove', function(event) {
     event.preventDefault();
     var touch = event.touches[0];
     
 
-    console.log("Touch x:" + (touch.pageX-getOffset(dot).left) + ", y:" + (getOffset(dot).top-touch.pageY));
+    //console.log("Touch x:" + (touch.pageX-getOffset(dot).left) + ", y:" + (getOffset(dot).top-touch.pageY));
     strToSend = (touch.pageX-getOffset(dot).left) + "," + (getOffset(dot).top-touch.pageY);
     /*if(ws){
       ws.send();
 
     }*/
+    sendData();
   }, false);
 
+  var start = document.getElementById('start');
+  start.onmousedown = ("click", function(event){
+    event.preventDefault();
+    if(ws){
+      ws.send(start.value);
+    }
+    start.value = "stop";
+    start.innerHTML = "Stop";
+  });
 }
 
 function getOffset( el ) {
@@ -73,7 +99,7 @@ var sendData = function(){
       prevStS = strToSend;
     }
   }
-  sendData();
+
 }
 </script>
 <style>
@@ -107,6 +133,10 @@ body{
   top: 285px;
 }
 
+#data{
+  font-size: 96pt;
+  color: #FFF;
+}
 
 </style>
 </head>
@@ -119,10 +149,13 @@ body{
     </center>
   </div>
   <br>
-<button id="start" style="font-size:96pt">Start</button>
+<button id="start" style="font-size:96pt" value="start">Start</button>
+<div id="data"><div id="score">Score: 0</div>
+     <div id="kills">Kills: 0</div>
+</div>
 </center>
 <script type="text/javascript">
-sendData();
+//setInterval(sendData, 10);
 </script>
 </body>
 </html>

@@ -1,23 +1,3 @@
-// Log events:
-
-document.onwebkitfullscreenchange = function () {
-  console.log("onwebkitfullscreenchange");
-}
-
-document.onwebkitfullscreenerror = function () {
-  console.log("onwebkitfullscreenerror");
-}
-
-// Button handlers:
-
-document.getElementById('enter').addEventListener('click', function(e) {
-  document.body.webkitRequestFullscreen();
-});
-
-document.getElementById('exit').addEventListener('click', function(e) {
-  document.webkitExitFullscreen();
-});
-
 function ab2str(buf) {
   return String.fromCharCode.apply(null, new Uint16Array(buf));
 }
@@ -55,13 +35,12 @@ var readOSC = function (data) {
     var socketId = CreateInfo.socketId;
     chrome.socket.connect(socketId, '127.0.0.1', 8898, function(result) {
      // We are now connected to the socket so send it some data
-       if(result>=0){
+      if(result>=0){
         chrome.socket.write(socketId, data, function(sendInfo) {
            //console.log("wrote " + sendInfo);
-         }
-        );
+        });
       }
-   });
+    });
   });
 }
 
@@ -121,8 +100,8 @@ document.getElementById('test').addEventListener('click', function(e) {
   console.log("outer Width: "+window.outerWidth);
 
   var hosts = document.getElementById("hosts");
+  chrome.app.window.create('hero_cl/score.html?', {width: screen.width-200, height: screen.height-200});
   chrome.app.window.create('hero_cl/index.html');
-  chrome.app.window.create('hero_cl/score.html?' + hosts.value);
   
 
 });

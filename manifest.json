@@ -17,6 +17,7 @@
         "udp-bind::8897",
         "udp-send-to::8898",
         "udp-send-to::8897",
+        "udp-send-to::8896",
         "tcp-listen::8080"
       ]}, "http://chart.apis.google.com/"
     ]

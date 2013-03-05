@@ -1,73 +1,77 @@
-// Create the canvas for 1680 x 1050 screen (in Chrome, hit F11)
-var canvas = document.createElement("canvas");
-var ctx = canvas.getContext("2d");
-canvas.width = 1620;
-canvas.height = 1020;
-document.body.appendChild(canvas);
+var sockets = {
+    "recv": {
+      protocol: "udp",
+      port: 8897,
+      socket: null,
+      type: 'bind'
+    }
+}
 
-// game start control
-var StartGame = 0;
+var players = new Array();
+var player = function(P,id,s,k){
+    P.id = id;
+    P.s = s;
+    P.k = k;
+    players.push(P);
+}
+var maxScore = 0;
+var maxKills = 0;
+var readScore = function (data) {
+    var msg = ab2str(data);
+    var data = msg.split(",");
+    //console.log(msg);
+    if(data[0] == "score")
+    {
+        var playerIndex = -1;
+        for(i=0;i<players.length;i++)
+        {
+            var p = players[i];
+            if(p.id == data[1])
+                playerIndex = i;
+        }
+        if(playerIndex >=0 )
+        {
+            players[playerIndex].s = data[2];
+            if(parseInt(data[2]) > parseInt(maxScore))
+                maxScore = data[2];
+            players[playerIndex].k = data[3];
+            if(parseInt(data[3]) > parseInt(maxKills))
+                maxKills = data[3];
+        }else{
+            player({}, data[1], data[2], data[3]);
+        }
+    }
+    if(data[0] == "end")
+    {
+        var playerIndex = -1;
+        for(i=0;i<players.length;i++)
+        {
+            var p = players[i];
+            if(parseInt(p.id) == parseInt(data[1]))
+                playerIndex = i;
+        }
+        if(playerIndex >=0 )
+        {
+            players.splice(playerIndex, 1);
+        }
+    }
+}
 
-// globals
+var dispScore = function (){
+    var scores = document.getElementById('scores');
+    scores.innerHTML = "";
+    for(i=0;i<players.length;i++)
+    {
+        var p = players[i];
+        scores.innerHTML += "<b>Player "+ p.id +":</b> Score: <b><i>"+ p.s +"</i></b>&nbsp;&nbsp;&nbsp;Kills: <b><i>"+ p.k +"</i></b><br>";
+    }
 
-// websocket stuff
-var Scs = ' | | |';
-var ws = null;
-
+    var score = document.getElementById('score');
+    var kill = document.getElementById('kill');
+    score.innerHTML = maxScore;
+    kill.innerHTML = maxKills;
+}
 window.onload = function () {
-    // get a socket
-    if ('WebSocket' in window) {
-        ws = new WebSocket('ws://' + window.location.host + '/score');
-    } else if ('MozWebSocket' in window) {
-        ws = new MozWebSocket('ws://' + window.location.host + '/score');
-    } else {
-        alert("WebSocket NOT supported by your Browser!");
-        return;
-    }
-    // socket event handlers
-    ws.onopen = function() { StartGame = 0; }
-    ws.onmessage = function (evt) { 
-        Scs = evt.data; 
-    }
-    ws.onclose = function() { StartGame = 0; }
+    connect(sockets['recv'], readScore);
+    setInterval(dispScore, 500);
 }
-
-// Background image
-var bgReady = false;
-var qrReady = false;
-var bgImage = new Image();
-bgImage.onload = function () {
-    bgReady = true;
-};
-bgImage.src = "images/background_1620x1020.png";
-
-myimage = new Image();
-myimage.onload = function() {
-    qrReady = true;
-}
-myimage.src = 'qr.png';
-
-// render heros, monsters, and zombies.  display score until Shantanu fixes new function
-function render() {
-    var ha = Scs.split("|");
-    ctx.fillStyle = "rgb(250, 250, 250)";
-    ctx.font = "96px Helvetica";
-    ctx.fillText(ha[0], 300, 200);
-    ctx.fillText(ha[1], 300, 400);
-    ctx.fillText(ha[2], 300, 600);
-}
-
-// The main game loop
-var main = function () {
-    if (bgReady) {
-        ctx.drawImage(bgImage, 0, 0);
-    }
-    if(qrReady){
-        ctx.drawImage(myimage, 0, 0);
-    }
-    if (ws) ws.send('G');
-
-    render();
-};
-
-setInterval(main, 1000); // Execute 1 time per second

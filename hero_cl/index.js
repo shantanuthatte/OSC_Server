@@ -259,6 +259,7 @@ function render(aliveZombies) {
         ctx.font = "96px Helvetica";
         ctx.fillText("GAME OVER!", 500, 200);
         StartGame = -1;
+        setTimeout(gameRestart, 3000);
     }
     // game is starting
     if (StartGame == 0) {
@@ -378,36 +379,41 @@ hero2.image.onload = function() { hero2.imageReady = true; }
 var hero3 = Hero({},200,700,74,96,"3","images/pl_base.png",'u3','d3','l3','r3');
 hero3.image.onload = function() { hero3.imageReady = true; }
 */
-var mon1 = Monster({},96,87,"images/monster2.png","images/monster2r.png");
-mon1.image.onload = function() { mon1.imageReady = true; }
-mon1.imageR.onload = function() { mon1.imageRReady = true; }
-var mon2 = Monster({},96,87,"images/monster2.png","images/monster2r.png");
-mon2.image.onload = function() { mon2.imageReady = true; }
-mon2.imageR.onload = function() { mon2.imageRReady = true; }
-var mon3 = Monster({},96,87,"images/monster2.png","images/monster2r.png");
-mon3.image.onload = function() { mon3.imageReady = true; }
-mon3.imageR.onload = function() { mon3.imageRReady = true; }
-var mon4 = Monster({},96,87,"images/monster2.png","images/monster2r.png");
-mon4.image.onload = function() { mon4.imageReady = true; }
-mon4.imageR.onload = function() { mon4.imageRReady = true; }
+var loadMZ = function(){
+    monsters = [];
+    var mon1 = Monster({},96,87,"images/monster2.png","images/monster2r.png");
+    mon1.image.onload = function() { mon1.imageReady = true; }
+    mon1.imageR.onload = function() { mon1.imageRReady = true; }
+    var mon2 = Monster({},96,87,"images/monster2.png","images/monster2r.png");
+    mon2.image.onload = function() { mon2.imageReady = true; }
+    mon2.imageR.onload = function() { mon2.imageRReady = true; }
+    var mon3 = Monster({},96,87,"images/monster2.png","images/monster2r.png");
+    mon3.image.onload = function() { mon3.imageReady = true; }
+    mon3.imageR.onload = function() { mon3.imageRReady = true; }
+    var mon4 = Monster({},96,87,"images/monster2.png","images/monster2r.png");
+    mon4.image.onload = function() { mon4.imageReady = true; }
+    mon4.imageR.onload = function() { mon4.imageRReady = true; }
 
-var zom1 = Zombie({},75,95,"images/zombie.png");
-zom1.image.onload = function() { zom1.imageReady = true; }
-var zom2 = Zombie({},75,95,"images/zombie.png");
-zom2.image.onload = function() { zom2.imageReady = true; }
-var zom3 = Zombie({},75,95,"images/zombie.png");
-zom3.image.onload = function() { zom3.imageReady = true; }
-var zom4 = Zombie({},75,95,"images/zombie.png");
-zom4.image.onload = function() { zom4.imageReady = true; }
-var zom5 = Zombie({},75,95,"images/zombie.png");
-zom5.image.onload = function() { zom5.imageReady = true; }
-var zom6 = Zombie({},75,95,"images/zombie.png");
-zom6.image.onload = function() { zom6.imageReady = true; }
-var zom7 = Zombie({},75,95,"images/zombie.png");
-zom7.image.onload = function() { zom7.imageReady = true; }
-var zom8 = Zombie({},75,95,"images/zombie.png");
-zom8.image.onload = function() { zom8.imageReady = true; }
+    zombies = [];
+    var zom1 = Zombie({},75,95,"images/zombie.png");
+    zom1.image.onload = function() { zom1.imageReady = true; }
+    var zom2 = Zombie({},75,95,"images/zombie.png");
+    zom2.image.onload = function() { zom2.imageReady = true; }
+    var zom3 = Zombie({},75,95,"images/zombie.png");
+    zom3.image.onload = function() { zom3.imageReady = true; }
+    var zom4 = Zombie({},75,95,"images/zombie.png");
+    zom4.image.onload = function() { zom4.imageReady = true; }
+    var zom5 = Zombie({},75,95,"images/zombie.png");
+    zom5.image.onload = function() { zom5.imageReady = true; }
+    var zom6 = Zombie({},75,95,"images/zombie.png");
+    zom6.image.onload = function() { zom6.imageReady = true; }
+    var zom7 = Zombie({},75,95,"images/zombie.png");
+    zom7.image.onload = function() { zom7.imageReady = true; }
+    var zom8 = Zombie({},75,95,"images/zombie.png");
+    zom8.image.onload = function() { zom8.imageReady = true; }
+}
 
+loadMZ();
 
 var sockets = {
     "recv": {
@@ -416,6 +422,10 @@ var sockets = {
       socket: null,
       type: 'bind'
     }
+}
+
+var gameRestart = function(){
+    loadMZ();
 }
 
 var readPXY = function (data) {
@@ -427,16 +437,50 @@ var readPXY = function (data) {
     {
         var hero1 = Hero({},200,100,74,96,(parseInt(coor[2])+1).toString(),"images/pl_base.png",'u1','d1','l1','r1');
         hero1.image.onload = function() { hero1.imageReady = true; }
-
-        var hero2 = Hero({},200,400,74,96,"2","images/pl_base.png",'u2','d2','l2','r2');
-        hero2.image.onload = function() { hero2.imageReady = true; }
-        var hero3 = Hero({},200,700,74,96,"3","images/pl_base.png",'u3','d3','l3','r3');
-        hero3.image.onload = function() { hero3.imageReady = true; }
         initHeroC();
         if(heros.length > 0)
         {
             StartGame = 1;
         }
+        var aliveZombies = 0;
+        for (var i=0;i<zombies.length;i++) 
+            if (zombies[i].alive) aliveZombies += 1;
+        }
+
+    if(coor[3] == "del")
+    {
+        heros.splice((coor[2]+0), 1);
+        chrome.socket.create('udp', {}, function(CreateInfo){
+            console.log(stringToUint8Array("end," + (coor[2]+1).toString()));
+            var data = stringToUint8Array("end," + (coor[2]+1).toString());
+            var socketId = CreateInfo.socketId;
+            chrome.socket.connect(socketId, '127.0.0.1', 8896, function(result) {
+             // We are now connected to the socket so send it some data
+              if(result>=0){
+                chrome.socket.write(socketId, data, function(sendInfo) {
+                   //console.log("wrote " + sendInfo);
+                });
+              }
+            });
+        });
+        chrome.socket.create('udp', {}, function(CreateInfo){
+            console.log(stringToUint8Array("end," + (coor[2]+1).toString()));
+            var data = stringToUint8Array("end," + (coor[2]+1).toString());
+            var socketId = CreateInfo.socketId;
+            chrome.socket.connect(socketId, '127.0.0.1', 8897, function(result) {
+             // We are now connected to the socket so send it some data
+              if(result>=0){
+                chrome.socket.write(socketId, data, function(sendInfo) {
+                   //console.log("wrote " + sendInfo);
+                });
+              }
+            });
+        });
+        if(heros.length == 0)
+        {
+            StartGame = 0;
+        }
+        console.log(heros);
     }
   }else{
       //console.log(heros[coor[2]]);
@@ -458,7 +502,7 @@ var main = function () {
     var dsecs = (now - then)/1000;
     if (bgReady) {
         ctx.drawImage(bgImage, 0, 0);
-    }
+    }/*
     // get keys (every other iteration)
     if (get_keys == 0) {
         var scr = '';
@@ -469,7 +513,7 @@ var main = function () {
         //ws.send(scr);
         get_keys = 0;
     } else get_keys = 0;
-
+    */
     // count number of alive zombies
     var aliveZombies = 0;
     for (var i=0;i<zombies.length;i++) 
@@ -484,8 +528,52 @@ var main = function () {
     then = now;
 };
 
+var sendScore = function(){
+    var heroCopy = heros;
+    for(hi=0;hi<heros.length;hi++)
+    {
+        var h = heros[hi];
+        if(hi>=heros.length){
+        }else{
+            chrome.socket.create('udp', {}, function(CreateInfo){
+                //console.log(heros[hi]);
+                var score = h.score;
+                var str = "score," + h.n + "," + h.score.toString() + "," + h.zkills.toString();
+                //console.log(stringToUint8Array(str));
+                var data = stringToUint8Array(str);
+                var socketId = CreateInfo.socketId;
+                chrome.socket.connect(socketId, '127.0.0.1', 8896, function(result) {
+                 // We are now connected to the socket so send it some data
+                  if(result>=0){
+                    chrome.socket.write(socketId, data, function(sendInfo) {
+                       //console.log("wrote " + sendInfo);
+                    });
+                  }
+                });
+            });
+            chrome.socket.create('udp', {}, function(CreateInfo){
+                //console.log(heros[hi]);
+                var score = h.score;
+                var str = "score," + h.n + "," + h.score.toString() + "," + h.zkills.toString();
+                //console.log(stringToUint8Array(str));
+                var data = stringToUint8Array(str);
+                var socketId = CreateInfo.socketId;
+                chrome.socket.connect(socketId, '127.0.0.1', 8897, function(result) {
+                 // We are now connected to the socket so send it some data
+                  if(result>=0){
+                    chrome.socket.write(socketId, data, function(sendInfo) {
+                       //console.log("wrote " + sendInfo);
+                    });
+                  }
+                });
+            });
+        }
+    }
+}
+
 var then = Date.now();
 var get_keys = 0;
 
 connect(sockets['recv'], readPXY);
 setInterval(main, 1000/20); // Execute 30 times per second
+setInterval(sendScore, 1000);

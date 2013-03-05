@@ -8,7 +8,7 @@ var stringToUint8Array = function(string) {
     for(var i = 0; i < string.length; i++) {
       view[i] = string.charCodeAt(i);
     }
-    return view;
+    return buffer;
 };
 
 function readUDP(readSock, callback)
